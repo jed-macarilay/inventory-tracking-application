@@ -44,7 +44,7 @@ class _LoginState extends State<Login> {
     final double height= MediaQuery.of(context).size.height;
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-    return  Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -95,23 +95,24 @@ class _LoginState extends State<Login> {
                     filled: true,
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: height*.05,),
                   ElevatedButton(
                     onPressed: () {
-                      if (formkey.currentState!.validate()) {
-                        setState(() {
-                          loading = true;
-                          _loginUser();
-                        });
-                      }
+                      // if (formkey.currentState!.validate()) {
+                      //   setState(() {
+                      //     loading = true;
+                      //     _loginUser();
+                      //   });
+                      // }
+                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false);
                     },
                     child: Text(
                       "Login",
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 24),
                     ),
                     style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
                       shape: StadiumBorder(),
-                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 140),
                     ),
                 )
               ],
