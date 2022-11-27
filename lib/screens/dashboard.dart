@@ -11,6 +11,8 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  final List<String> deliveries = List<String>.generate(10000, (i) => 'Item $i');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,21 +30,25 @@ class _DashboardState extends State<Dashboard> {
           ),
         ],
       ),
-      body: new Center(child: GestureDetector(  
-          onTap: () {  
-            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Map()), (route) => false); 
-          },  
-          child: Container(  
-            height: 60.0,  
-            width: 120.0,  
-            padding: EdgeInsets.all(10.0),  
-            decoration: BoxDecoration(  
-              color: Colors.blueGrey,  
-              borderRadius: BorderRadius.circular(15.0),  
-            ),  
-            child: Center(child: Text('Click Me')),  
-          )  
-      )), 
+      body: ListView.builder(
+        itemCount: deliveries.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text('Delivery # $index'),
+            subtitle: Row(
+              children: [
+                Text('Origin | '),
+                Text('Destination | '),
+                Text('Status'),
+              ],
+            ),
+            trailing: Icon(Icons.directions),
+            onTap: () { 
+              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Map()), (route) => false);
+            },
+          );
+        },
+      ), 
     );
   }
 }
