@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:denlee_app/screens/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dashboard.dart';
 
 class Map extends StatefulWidget {
@@ -34,6 +35,7 @@ class _MapScreenState extends State<MapScreen> {
   );
 
   late GoogleMapController _googleMapController;
+  int currentIndex = 0;
 
   Marker _origin = Marker(
     markerId: const MarkerId('origin'),
@@ -109,16 +111,17 @@ class _MapScreenState extends State<MapScreen> {
           _destination,
         }
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        onPressed: () => _googleMapController.animateCamera(
-          CameraUpdate.newCameraPosition(_initialCameraPosition)
-        ),
-        child: const Icon(Icons.center_focus_strong),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: Theme.of(context).primaryColor,
+      //   foregroundColor: Colors.white,
+      //   onPressed: () => _googleMapController.animateCamera(
+      //     CameraUpdate.newCameraPosition(_initialCameraPosition)
+      //   ),
+      //   child: const Icon(Icons.center_focus_strong),
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
+        clipBehavior: Clip.antiAlias,
         child: BottomNavigationBar(
           items: [
             BottomNavigationBarItem(
@@ -134,6 +137,15 @@ class _MapScreenState extends State<MapScreen> {
               label: 'Set as Delivered',
             ),
           ],
+          onTap: (v) {
+            if (v == 1) {
+              _googleMapController.animateCamera(CameraUpdate.newCameraPosition(_initialCameraPosition));
+            } else if (v == 2) {
+              
+            } else {
+              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false);
+            }
+          },
         ),
       ),
     );
