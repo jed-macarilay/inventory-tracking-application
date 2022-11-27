@@ -1,9 +1,7 @@
 import 'dart:async';
-// import 'package:denlee_app/models/directions_model.txt';
 import 'package:denlee_app/screens/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import '../repositories/direction_repository.txt';
 import 'dashboard.dart';
 
 class Map extends StatefulWidget {
@@ -51,8 +49,6 @@ class _MapScreenState extends State<MapScreen> {
     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
     position: LatLng(14.654367, 120.983894),
   );
-
-  // late Directions _info;
 
   @override
   void dispose() {
@@ -103,50 +99,15 @@ class _MapScreenState extends State<MapScreen> {
           },
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(bottom: 250.0),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            GoogleMap(
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              initialCameraPosition: _initialCameraPosition,
-              onMapCreated: (controller) => _googleMapController = controller,
-              markers: {
-                _origin,
-                _destination,
-              }
-            ),
-            // Positioned(
-            //   top: 20.0,
-            //   child: Container(
-            //     padding: const EdgeInsets.symmetric(
-            //       vertical: 6.0,
-            //       horizontal: 12.0,
-            //     ),
-            //     decoration: BoxDecoration(
-            //       color: Colors.yellowAccent,
-            //       borderRadius: BorderRadius.circular(20.0),
-            //       boxShadow: const [
-            //         BoxShadow(
-            //           color: Colors.black26,
-            //           offset: Offset(0, 2),
-            //           blurRadius: 6.0,
-            //         )
-            //       ],
-            //     ),
-            //     child: Text(
-            //       '100m, 100mins',
-            //       style: const TextStyle(
-            //         fontSize: 18.0,
-            //         fontWeight: FontWeight.w600,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ],
-        ),
+      body: GoogleMap(
+        myLocationButtonEnabled: false,
+        zoomControlsEnabled: false,
+        initialCameraPosition: _initialCameraPosition,
+        onMapCreated: (controller) => _googleMapController = controller,
+        markers: {
+          _origin,
+          _destination,
+        }
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
@@ -165,8 +126,12 @@ class _MapScreenState extends State<MapScreen> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark),
-              label: 'Delivered',
+              icon: Icon(Icons.center_focus_strong),
+              label: 'Re-center',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.airport_shuttle),
+              label: 'Set as Delivered',
             ),
           ],
         ),
