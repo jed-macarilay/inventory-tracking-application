@@ -3,7 +3,9 @@ import 'package:denlee_app/screens/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:location/location.dart';
 import 'dashboard.dart';
+import 'package:denlee_app/.env.dart';
 
 class Map extends StatefulWidget {
   const Map({super.key});
@@ -29,33 +31,48 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  static const _initialCameraPosition = CameraPosition(
-    target: LatLng(12.8797, 121.7740),
-    zoom: 8.0,
-  );
 
-  late GoogleMapController _googleMapController;
+  final Completer<GoogleMapController> _controller = Completer();
+
   int currentIndex = 0;
 
-  Marker _origin = Marker(
-    markerId: const MarkerId('origin'),
-    infoWindow: InfoWindow(title: 'origin'),
-    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-    // position: LatLng(14.6734, 121.0206),
-    position: LatLng(12.8797, 121.7740),
-  );
+  static const LatLng sourceLocation = LatLng(14.6773, 121.0195);
+  static const LatLng destination = LatLng(14.5679, 121.0659);
+  List<LatLng> polylineCoordinates = [];
+  LocationData? currentLocation;
 
-  Marker _destination = Marker(
-    markerId: const MarkerId('origin'),
-    infoWindow: InfoWindow(title: 'origin'),
-    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-    position: LatLng(14.654367, 120.983894),
-  );
+  void getCurrentLocation() async {
+    Location location = Location();
+
+    location.getLocation()
+      .then((location) => {
+        currentLocation = location
+      });
+
+    GoogleMapController googleMapController = await _controller.future;
+
+    location.onLocationChanged.listen((newLocation) {
+      currentLocation = newLocation;
+      // googleMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(zoom: 13.5, target: LatLng(newLocation.latitude!, newLocation.longitude!))));
+      setState(() {});
+     });
+  }
+
+  void getPolyPoints() async {
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(googleAPIKey, PointLatLng(sourceLocation.latitude, sourceLocation.longitude,), PointLatLng(destination.latitude, destination.longitude),);
+
+    if(result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) => polylineCoordinates.add(LatLng(point.latitude, point.longitude)));
+      setState(() {});
+    }
+  }
 
   @override
-  void dispose() {
-    _googleMapController.dispose();
-    super.dispose();
+  void initState() {
+    getCurrentLocation();
+    getPolyPoints();
+    super.initState();
   }
 
   @override
@@ -63,37 +80,37 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Vehicle Location'),
-        actions: [
-          TextButton(onPressed: () => _googleMapController.animateCamera(
-            CameraUpdate.newCameraPosition(
-              CameraPosition(
-                target: _origin.position,
-                zoom: 14.5,
-                tilt: 50.0,
-              ),
-            ),
-          ),
-          child: Text('Start Point'),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-            textStyle: TextStyle(fontWeight: FontWeight.w600),
-          ),),
-          TextButton(onPressed: () => _googleMapController.animateCamera(
-            CameraUpdate.newCameraPosition(
-              CameraPosition(
-                target: _destination.position,
-                zoom: 14.5,
-                tilt: 50.0,
-              ),
-            ),
-          ), 
-          child: Text('End Point'),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-            textStyle: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          ),
-        ],
+        // actions: [
+        //   TextButton(onPressed: () => _controller.animateCamera(
+        //     CameraUpdate.newCameraPosition(
+        //       CameraPosition(
+        //         target: sourceLocation,
+        //         zoom: 14.5,
+        //         tilt: 50.0,
+        //       ),
+        //     ),
+        //   ),
+        //   child: Text('Start Point'),
+        //   style: TextButton.styleFrom(
+        //     foregroundColor: Colors.white,
+        //     textStyle: TextStyle(fontWeight: FontWeight.w600),
+        //   ),),
+        //   TextButton(onPressed: () => _googleMapController.animateCamera(
+        //     CameraUpdate.newCameraPosition(
+        //       CameraPosition(
+        //         target: destination,
+        //         zoom: 14.5,
+        //         tilt: 50.0,
+        //       ),
+        //     ),
+        //   ), 
+        //   child: Text('End Point'),
+        //   style: TextButton.styleFrom(
+        //     foregroundColor: Colors.white,
+        //     textStyle: TextStyle(fontWeight: FontWeight.w600),
+        //   ),
+        //   ),
+        // ],
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => {
@@ -101,25 +118,39 @@ class _MapScreenState extends State<MapScreen> {
           },
         ),
       ),
-      body: GoogleMap(
+      body: currentLocation == null ? const Center(child: Text('Loading'),) : 
+        GoogleMap(
         myLocationButtonEnabled: false,
-        zoomControlsEnabled: false,
-        initialCameraPosition: _initialCameraPosition,
-        onMapCreated: (controller) => _googleMapController = controller,
+        initialCameraPosition: CameraPosition(
+          target: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+          zoom: 13,
+        ),
         markers: {
-          _origin,
-          _destination,
-        }
+          Marker(
+            markerId: const MarkerId('currentLocation'),
+            position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+          ),
+          const Marker(
+            markerId: MarkerId('origin'),
+            position: sourceLocation,
+          ),
+          const Marker(
+            markerId: MarkerId('destination'),
+            position: destination,
+          ),
+        },
+        polylines: {
+          Polyline(
+            polylineId: PolylineId('route'),
+            points: polylineCoordinates,
+            color: Colors.red,
+            width: 6,
+          ),
+        },
+        // onMapCreated: (mapController) {
+        //   _controller.complete(mapController);
+        // },
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Theme.of(context).primaryColor,
-      //   foregroundColor: Colors.white,
-      //   onPressed: () => _googleMapController.animateCamera(
-      //     CameraUpdate.newCameraPosition(_initialCameraPosition)
-      //   ),
-      //   child: const Icon(Icons.center_focus_strong),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         clipBehavior: Clip.antiAlias,
         child: BottomNavigationBar(
@@ -139,7 +170,7 @@ class _MapScreenState extends State<MapScreen> {
           ],
           onTap: (v) {
             if (v == 1) {
-              _googleMapController.animateCamera(CameraUpdate.newCameraPosition(_initialCameraPosition));
+              // _controller.animateCamera(CameraUpdate.newCameraPosition(_initialCameraPosition));
             } else if (v == 2) {
               
             } else {
