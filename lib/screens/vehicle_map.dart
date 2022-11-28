@@ -37,7 +37,7 @@ class _MapScreenState extends State<MapScreen> {
   int currentIndex = 0;
 
   static const LatLng sourceLocation = LatLng(14.6773, 121.0195);
-  static const LatLng destination = LatLng(14.5679, 121.0659);
+  static const LatLng destination = LatLng(14.6797, 121.0195);
   List<LatLng> polylineCoordinates = [];
   LocationData? currentLocation;
 
@@ -70,7 +70,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void initState() {
-    getCurrentLocation();
+    // getCurrentLocation();
     getPolyPoints();
     super.initState();
   }
@@ -118,18 +118,19 @@ class _MapScreenState extends State<MapScreen> {
           },
         ),
       ),
-      body: currentLocation == null ? const Center(child: Text('Loading'),) : 
+      body: 
+        // currentLocation == null ? const Center(child: Text('Loading'),) : 
         GoogleMap(
         myLocationButtonEnabled: false,
         initialCameraPosition: CameraPosition(
-          target: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-          zoom: 13,
+          target: sourceLocation,
+          zoom: 14.5,
         ),
         markers: {
-          Marker(
-            markerId: const MarkerId('currentLocation'),
-            position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-          ),
+          // Marker(
+          //   markerId: const MarkerId('currentLocation'),
+          //   position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+          // ),
           const Marker(
             markerId: MarkerId('origin'),
             position: sourceLocation,

@@ -33,10 +33,10 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.0.15
   http: ^0.13.5
-  google_maps_flutter: ^2.2.1
+  google_maps_flutter: ^2.1.7
   dio: ^4.0.6
   flutter_polyline_points: ^1.0.0
-  location: ^4.2.0
+  location: ^4.4.0
 
 
 
