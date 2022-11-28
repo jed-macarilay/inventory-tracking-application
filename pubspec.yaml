@@ -31,8 +31,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.0.15
-  http: ^0.13.5
+  http: ^0.13.3
+  shared_preferences: ^2.0.6
   google_maps_flutter: ^2.1.7
   dio: ^4.0.6
   flutter_polyline_points: ^1.0.0

@@ -98,13 +98,14 @@ class _LoginState extends State<Login> {
                 SizedBox(height: height*.05,),
                   ElevatedButton(
                     onPressed: () {
-                      // if (formkey.currentState!.validate()) {
-                      //   setState(() {
-                      //     loading = true;
-                      //     _loginUser();
-                      //   });
-                      // }
-                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false);
+                      if (formkey.currentState!.validate()) {
+                        setState(() {
+                          loading = true;
+                          _loginUser();
+                        });
+                      }
+
+                      // Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false);
                     },
                     child: Text(
                       "Login",

@@ -124,7 +124,7 @@ class _MapScreenState extends State<MapScreen> {
         myLocationButtonEnabled: false,
         initialCameraPosition: CameraPosition(
           target: sourceLocation,
-          zoom: 14.5,
+          zoom: 18,
         ),
         markers: {
           // Marker(

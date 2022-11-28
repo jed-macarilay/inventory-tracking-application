@@ -26,7 +26,7 @@ Future<ApiResponse> login (String email, String password) async {
       case 422:
         final errors = jsonDecode(response.body)['errors'];
 
-        apiResponse.error = errors[errors.key.elementAt(0)][0];
+        apiResponse.error = errors[errors.keys.elementAt(0)][0];
 
         break;
       case 403:
@@ -50,4 +50,14 @@ Future<bool> logout () async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 
   return await pref.remove('token');
+}
+
+Future<String> getToken() async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  return pref.getString('token') ?? '';
+}
+
+Future<int> getUserId() async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  return pref.getInt('userId') ?? 0;
 }
