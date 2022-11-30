@@ -37,9 +37,14 @@ class _MapScreenState extends State<MapScreen> {
   int currentIndex = 0;
 
   static const LatLng sourceLocation = LatLng(14.6773, 121.0195);
-  static const LatLng destination = LatLng(14.6797, 121.0195);
+  static const LatLng destination = LatLng(14.6568, 121.0304);
   List<LatLng> polylineCoordinates = [];
   LocationData? currentLocation;
+
+  BitmapDescriptor sourceIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor destinationIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor currentLocationIcon = BitmapDescriptor.defaultMarker;
+  
 
   void getCurrentLocation() async {
     Location location = Location();
@@ -53,7 +58,14 @@ class _MapScreenState extends State<MapScreen> {
 
     location.onLocationChanged.listen((newLocation) {
       currentLocation = newLocation;
-      // googleMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(zoom: 13.5, target: LatLng(newLocation.latitude!, newLocation.longitude!))));
+
+      googleMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+          newLocation.latitude!,
+          newLocation.longitude!,
+        ),
+        zoom: 13.5,
+      )));
       setState(() {});
      });
   }
@@ -70,9 +82,16 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void initState() {
-    // getCurrentLocation();
+    getCurrentLocation();
     getPolyPoints();
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -119,18 +138,24 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ),
       body: 
-        // currentLocation == null ? const Center(child: Text('Loading'),) : 
+        currentLocation == null ? const Center(child: Text('Loading'),) : 
         GoogleMap(
         myLocationButtonEnabled: false,
         initialCameraPosition: CameraPosition(
-          target: sourceLocation,
-          zoom: 18,
+          target: LatLng(
+            currentLocation!.latitude!,
+            currentLocation!.longitude!
+          ),
+          zoom: 13.5,
         ),
         markers: {
-          // Marker(
-          //   markerId: const MarkerId('currentLocation'),
-          //   position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-          // ),
+          Marker(
+            markerId: const MarkerId('currentLocation'),
+            position: LatLng(
+              currentLocation!.latitude!, 
+              currentLocation!.longitude!,
+            ),
+          ),
           const Marker(
             markerId: MarkerId('origin'),
             position: sourceLocation,
@@ -144,13 +169,13 @@ class _MapScreenState extends State<MapScreen> {
           Polyline(
             polylineId: PolylineId('route'),
             points: polylineCoordinates,
-            color: Colors.red,
+            color: Colors.blueAccent,
             width: 6,
           ),
         },
-        // onMapCreated: (mapController) {
-        //   _controller.complete(mapController);
-        // },
+        onMapCreated: (mapController) {
+          _controller.complete(mapController);
+        },
       ),
       bottomNavigationBar: BottomAppBar(
         clipBehavior: Clip.antiAlias,
