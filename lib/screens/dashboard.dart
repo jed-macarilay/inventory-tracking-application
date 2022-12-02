@@ -112,20 +112,18 @@ class _DashboardState extends State<Dashboard> {
                         child: Icon(Icons.assistant_direction_outlined, color: Colors.white),
                       ),
                       title: Text(
-                        "Delivery ID ${deliveryModel.id}",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        "Delivery ID # ${deliveryModel.id}",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.0,),
                       ),
-                      subtitle: Row(
-                        children: <Widget>[
-                          Text("Status ${deliveryModel.status}",
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontSize: 14.0
-                          )),
-                        ],
-                      ),
-                      trailing:
-                          Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0)),
+                      subtitle: Text("Address: ${deliveryModel.destination} \n Status: ${deliveryModel.status}",
+                        style: TextStyle(
+                        color: Colors.white, 
+                        fontSize: 12.0
+                      )),
+                      trailing:Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
+                      isThreeLine: true,
+                      onTap: () { /* react to the tile being tapped */ }
+                    ),
                   ),
                 );
               },
