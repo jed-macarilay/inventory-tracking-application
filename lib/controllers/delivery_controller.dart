@@ -18,10 +18,7 @@ Future<ApiResponse> getDeliveries() async {
 
     switch(response.statusCode){
       case 200:
-        // apiResponse.data = jsonDecode(response.body)['deliveries'].map((data) => DeliveryModel.fromJson(data)).toList();
-        // apiResponse.data as List<dynamic>;
-        var data = jsonDecode(response.body)['deliveries'];
-        apiResponse.data = DeliveryModel.fromJson(data);
+        apiResponse.data = jsonDecode(response.body)['deliveries'].map((data) => DeliveryModel.fromJson(data)).toList();
         apiResponse.data as List<dynamic>;
         break;
       case 401:
