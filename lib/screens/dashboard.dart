@@ -19,10 +19,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   List<dynamic> _deliveries = [];
-  int userId = 0;
 
-  Future<void> fetchDeliveries() async {
-    userId = await getUserId();
+  Future<void> retriveDeliveries() async {
     ApiResponse response = await getDeliveries();
 
     if(response.error == null){
@@ -42,22 +40,9 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  Future<List> fetchJSON() async {
-    String token = await getToken();
-    http.Response response = await http.get(Uri.parse(getDeliveryURL),
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    });
-
-    var data = jsonDecode(response.body)['deliveries'];
-
-    return data;
-  }
-
   @override
   void initState() {
-    // fetchDeliveries();
+    retriveDeliveries();
     super.initState();
   }
 
@@ -79,34 +64,11 @@ class _DashboardState extends State<Dashboard> {
           ),
         ],
       ),
-      body: FutureBuilder<List>(
-        future: fetchJSON(),
-        builder: (BuildContext context, res) {
-          if (res.connectionState == ConnectionState.done) {
-            if (res.hasData) {
-              // Success case
-              return ListView.builder(
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: const Icon(Icons.assistant_direction),
-                    title: Text("Delivery #: ${res.data![index]['id']}"),
-                    subtitle: Text("Receiver: ${res.data![index]['receiver']} | Origin: ${res.data![index]['origin']} | Destination: ${res.data![index]['destination']} | Status: ${res.data![index]['status']} "),
-                    onTap: () {
-                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Map()), (route) => false);
-                    },
-                  );
-                },
-                itemCount: res.data!.length,
-              );
-            }
-            // Error case
-            return Text('Something went wrong');
-          } else {
-            // Loading data
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+      body: ListView.builder(
+        itemCount: _deliveries.length,
+        itemBuilder: (BuildContext context, int index) {
+          DeliveryModel deliveryModel = _deliveries[index];
+          return Text('${deliveryModel.status}');
         },
       ),
     );
