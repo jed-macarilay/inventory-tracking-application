@@ -77,6 +77,7 @@ class _MapState extends State<Map> {
         zoom: 13.5,
       )));
       setState(() {});
+      print(currentLocation);
      });
   }
 
@@ -86,7 +87,6 @@ class _MapState extends State<Map> {
 
     if(result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) => polylineCoordinates.add(LatLng(point.latitude, point.longitude)));
-      print(polylineCoordinates);
       setState(() {});
     }
   }
@@ -94,7 +94,7 @@ class _MapState extends State<Map> {
   @override
   void initState() {
     _fetchDelivery();
-    getPolyPoints();
+    getCurrentLocation();
     super.initState();
   }
 
@@ -102,7 +102,7 @@ class _MapState extends State<Map> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vehicle Location'),
+        title: Text('Delivery Location'),
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => {
@@ -111,13 +111,13 @@ class _MapState extends State<Map> {
         ),
       ),
       body: 
-        // currentLocation == null ? const Center(child: Text('Loading'),) : 
+        currentLocation == null ? const Center(child: Text('Loading'),) : 
         GoogleMap(
         myLocationButtonEnabled: false,
         initialCameraPosition: CameraPosition(
           target: LatLng(
-            14.6773, 
-            121.0304,
+            _origin_latitude!,
+            _origin_longtitude!
           ),
           zoom: 13.5,
         ),
@@ -125,9 +125,10 @@ class _MapState extends State<Map> {
           Marker(
             markerId: const MarkerId('currentLocation'),
             position: LatLng(
-              14.6773, 
-              121.0304,
+              currentLocation!.latitude!, 
+              currentLocation!.longitude!,
             ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(150),
           ),
           Marker(
             markerId: MarkerId('origin'),
@@ -135,6 +136,7 @@ class _MapState extends State<Map> {
               _origin_latitude!,
               _origin_longtitude!
             ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(90),
           ),
           Marker(
             markerId: MarkerId('destination'),
@@ -142,14 +144,24 @@ class _MapState extends State<Map> {
               _destination_latitude!,
               _destination_longtitude!,
             ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(90),
           ),
         },
         polylines: {
           Polyline(
             polylineId: PolylineId('route'),
-            points: polylineCoordinates,
-            color: Colors.blueAccent,
-            width: 6,
+            points: [
+              LatLng(
+                _origin_latitude!,
+                _origin_longtitude!
+              ),
+              LatLng(
+                _destination_latitude!,
+                _destination_longtitude!,
+              ),
+            ],
+            color: Color(0xFF08A5CB),
+            width: 10,
           ),
         },
         onMapCreated: (mapController) {
