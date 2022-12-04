@@ -10,6 +10,8 @@ import '../models/user.dart';
 import 'login.dart';
 import 'vehicle_map.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -41,6 +43,11 @@ class _DashboardState extends State<Dashboard> {
         content: Text('${response.error}'),
       ));
     }
+  }
+
+  _setDeliveryId(id) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setInt('deliveryId', id);
   }
 
   @override
@@ -115,14 +122,19 @@ class _DashboardState extends State<Dashboard> {
                         "Delivery ID # ${deliveryModel.id}",
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.0,),
                       ),
-                      subtitle: Text("Address: ${deliveryModel.destination} \n Status: ${deliveryModel.status}",
+                      subtitle: Text("Address: ${deliveryModel.destination} \n ID: ${deliveryModel.id}",
                         style: TextStyle(
                         color: Colors.white, 
                         fontSize: 12.0
                       )),
                       trailing:Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
                       isThreeLine: true,
-                      onTap: () { /* react to the tile being tapped */ }
+                      onTap: () { 
+                        _setDeliveryId(deliveryModel.id);
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => Map(
+                          deliveryId: deliveryModel.id,
+                        )));
+                      },
                     ),
                   ),
                 );

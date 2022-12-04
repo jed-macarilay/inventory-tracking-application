@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/api_response.dart';
 import '../models/delivery.dart';
 import './user_controller.dart';
@@ -37,6 +39,25 @@ Future<ApiResponse> getDeliveries() async {
   return apiResponse;
 }
 
+Future<ApiResponse> getDelivery(deliveryId) async {
+  ApiResponse apiResponse = ApiResponse();
+
+  try {
+    String token = await getToken();
+    final response = await http.get(Uri.parse('${getDeliveryURL}/${deliveryId}'),
+    headers: {
+      'Accept': 'application/json',
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token'
+    });
+
+    apiResponse.data = DeliveryModel.fromJson(jsonDecode(response.body)['delivery']);
+  } catch(e) {
+    apiResponse.error = serverError;
+  }
+  return apiResponse;
+}
+
 Future<ApiResponse> setStatus(int deliveryId, String status) async {
   ApiResponse apiResponse = ApiResponse();
 
@@ -69,4 +90,9 @@ Future<ApiResponse> setStatus(int deliveryId, String status) async {
   }
 
   return apiResponse;
+}
+
+Future<int> getDeliveryId() async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  return pref.getInt('deliveryId') ?? 0;
 }

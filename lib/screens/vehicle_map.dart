@@ -1,50 +1,60 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:async';
+import 'package:denlee_app/controllers/delivery_controller.dart';
+import 'package:denlee_app/models/delivery.dart';
 import 'package:denlee_app/screens/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/api_response.dart';
 import 'dashboard.dart';
 import 'package:denlee_app/.env.dart';
 
 class Map extends StatefulWidget {
-  const Map({super.key});
+  final int? deliveryId;
+
+  Map({this.deliveryId});
 
   @override
   _MapState createState() => _MapState();
 }
 
 class _MapState extends State<Map> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: MapScreen(),
-    );
-  }
-}
-
-class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
-
-  @override
-  State<MapScreen> createState() => _MapScreenState();
-}
-
-class _MapScreenState extends State<MapScreen> {
-
   final Completer<GoogleMapController> _controller = Completer();
 
   int currentIndex = 0;
 
-  static const LatLng sourceLocation = LatLng(14.6773, 121.0195);
-  static const LatLng destination = LatLng(14.6568, 121.0304);
+  DeliveryModel? _deliveryModel;
+  double _origin_latitude = 0;
+  double _origin_longtitude = 0;
+  double _destination_latitude = 0;
+  double _destination_longtitude = 0;
+
   List<LatLng> polylineCoordinates = [];
   LocationData? currentLocation;
 
-  BitmapDescriptor sourceIcon = BitmapDescriptor.defaultMarker;
-  BitmapDescriptor destinationIcon = BitmapDescriptor.defaultMarker;
-  BitmapDescriptor currentLocationIcon = BitmapDescriptor.defaultMarker;
-  
+  Future<void> _fetchDelivery() async {
+    int id = await getDeliveryId();
+    ApiResponse response = await getDelivery(id);
+
+    if(response.error == null) {
+      setState(() {
+        _deliveryModel = response.data as DeliveryModel;
+        _origin_latitude = double.parse('${_deliveryModel?.origin_latitude}');
+        _origin_longtitude = double.parse('${_deliveryModel?.origin_longtitude}');
+        _destination_latitude = double.parse('${_deliveryModel?.destination_latitude}');
+        _destination_longtitude = double.parse('${_deliveryModel?.destination_longtitude}');
+      });
+    } else {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${response.error}'),
+      ));
+    }
+  }
 
   void getCurrentLocation() async {
     Location location = Location();
@@ -72,26 +82,20 @@ class _MapScreenState extends State<MapScreen> {
 
   void getPolyPoints() async {
     PolylinePoints polylinePoints = PolylinePoints();
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(googleAPIKey, PointLatLng(sourceLocation.latitude, sourceLocation.longitude,), PointLatLng(destination.latitude, destination.longitude),);
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(googleAPIKey, PointLatLng(_origin_latitude!, _origin_longtitude!), PointLatLng(_destination_latitude!, _destination_longtitude!),);
 
     if(result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) => polylineCoordinates.add(LatLng(point.latitude, point.longitude)));
+      print(polylineCoordinates);
       setState(() {});
     }
   }
 
   @override
   void initState() {
-    getCurrentLocation();
+    _fetchDelivery();
     getPolyPoints();
     super.initState();
-  }
-
-  @override
-  void setState(fn) {
-    if(mounted) {
-      super.setState(fn);
-    }
   }
 
   @override
@@ -99,37 +103,6 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Vehicle Location'),
-        // actions: [
-        //   TextButton(onPressed: () => _controller.animateCamera(
-        //     CameraUpdate.newCameraPosition(
-        //       CameraPosition(
-        //         target: sourceLocation,
-        //         zoom: 14.5,
-        //         tilt: 50.0,
-        //       ),
-        //     ),
-        //   ),
-        //   child: Text('Start Point'),
-        //   style: TextButton.styleFrom(
-        //     foregroundColor: Colors.white,
-        //     textStyle: TextStyle(fontWeight: FontWeight.w600),
-        //   ),),
-        //   TextButton(onPressed: () => _googleMapController.animateCamera(
-        //     CameraUpdate.newCameraPosition(
-        //       CameraPosition(
-        //         target: destination,
-        //         zoom: 14.5,
-        //         tilt: 50.0,
-        //       ),
-        //     ),
-        //   ), 
-        //   child: Text('End Point'),
-        //   style: TextButton.styleFrom(
-        //     foregroundColor: Colors.white,
-        //     textStyle: TextStyle(fontWeight: FontWeight.w600),
-        //   ),
-        //   ),
-        // ],
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => {
@@ -138,13 +111,13 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ),
       body: 
-        currentLocation == null ? const Center(child: Text('Loading'),) : 
+        // currentLocation == null ? const Center(child: Text('Loading'),) : 
         GoogleMap(
         myLocationButtonEnabled: false,
         initialCameraPosition: CameraPosition(
           target: LatLng(
-            currentLocation!.latitude!,
-            currentLocation!.longitude!
+            14.6773, 
+            121.0304,
           ),
           zoom: 13.5,
         ),
@@ -152,17 +125,23 @@ class _MapScreenState extends State<MapScreen> {
           Marker(
             markerId: const MarkerId('currentLocation'),
             position: LatLng(
-              currentLocation!.latitude!, 
-              currentLocation!.longitude!,
+              14.6773, 
+              121.0304,
             ),
           ),
-          const Marker(
+          Marker(
             markerId: MarkerId('origin'),
-            position: sourceLocation,
+            position: LatLng(
+              _origin_latitude!,
+              _origin_longtitude!
+            ),
           ),
-          const Marker(
+          Marker(
             markerId: MarkerId('destination'),
-            position: destination,
+            position: LatLng(
+              _destination_latitude!,
+              _destination_longtitude!,
+            ),
           ),
         },
         polylines: {

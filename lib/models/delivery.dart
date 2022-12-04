@@ -3,7 +3,11 @@ class DeliveryModel {
   String? receiver;
   String? contact_number;
   String? origin;
+  String? origin_latitude;
+  String? origin_longtitude;
   String? destination;
+  String? destination_latitude;
+  String? destination_longtitude;
   String? status;
 
   DeliveryModel({
@@ -11,7 +15,11 @@ class DeliveryModel {
     this.receiver,
     this.contact_number,
     this.origin,
+    this.origin_latitude,
+    this.origin_longtitude,
     this.destination,
+    this.destination_latitude,
+    this.destination_longtitude,
     this.status,
   });
 
@@ -21,7 +29,11 @@ class DeliveryModel {
       receiver: json['receiver'],
       contact_number: json['contact_number'],
       origin: json['origin'],
+      origin_latitude: json['origin_latitude'],
+      origin_longtitude: json['origin_longtitude'],
       destination: json['destination'],
+      destination_latitude: json['destination_latitude'],
+      destination_longtitude: json['destination_longtitude'],
       status: json['status'],
     );
   }
