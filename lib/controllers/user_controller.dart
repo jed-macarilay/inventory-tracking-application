@@ -46,6 +46,37 @@ Future<ApiResponse> login (String email, String password) async {
   return apiResponse;
 }
 
+Future<ApiResponse> getUserDetail() async {
+  ApiResponse apiResponse = ApiResponse();
+  try {
+    String token = await getToken();
+    final response = await http.get(
+      Uri.parse(userURL),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+
+    switch(response.statusCode){
+      case 200:
+        print(jsonDecode(response.body));
+        apiResponse.data = User.fromJson(jsonDecode(response.body));
+        break;
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingwentwrong;
+        break;
+    }
+  } 
+  catch(e) {
+    print('Error: ${e}');
+    apiResponse.error = serverError;
+  }
+  return apiResponse;
+}
+
 Future<bool> logout () async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 

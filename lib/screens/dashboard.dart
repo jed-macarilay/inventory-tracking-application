@@ -45,6 +45,25 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
+  void getUser() async {
+    ApiResponse response = await getUserDetail();
+    if(response.error == null) {
+      setState(() {
+        user = response.data as User;
+      });
+    }
+    else if(response.error == unauthorized){
+      logout().then((value) => {
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Login()), (route) => false)
+      });
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${response.error}')
+      ));
+    }
+  }
+
   _setDeliveryId(id) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setInt('deliveryId', id);
@@ -52,6 +71,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void initState() {
+    getUser();
     retriveDeliveries();
     super.initState();
   }
@@ -80,7 +100,7 @@ class _DashboardState extends State<Dashboard> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.all(18.0),
-              child: Text('Welcome to Denlee App',
+              child: Text('Welcome ${user!.name} to Denlee App',
                 style: TextStyle(
                   color: Colors.lightBlue,
                   fontSize: 28.0,
@@ -122,7 +142,7 @@ class _DashboardState extends State<Dashboard> {
                         "Delivery ID # ${deliveryModel.id}",
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.0,),
                       ),
-                      subtitle: Text("Address: ${deliveryModel.destination} \n ID: ${deliveryModel.id}",
+                      subtitle: Text("\nAddress: ${deliveryModel.destination} \n\n Status: ${deliveryModel.status}",
                         style: TextStyle(
                         color: Colors.white, 
                         fontSize: 12.0
