@@ -59,36 +59,39 @@ class _MapState extends State<Map> {
   void getCurrentLocation() async {
     Location location = Location();
 
-    location.getLocation()
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    await location.getLocation()
       .then((location) => {
         currentLocation = location
       });
 
-    GoogleMapController googleMapController = await _controller.future;
-
     location.onLocationChanged.listen((newLocation) {
       currentLocation = newLocation;
 
-      googleMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(
-          newLocation.latitude!,
-          newLocation.longitude!,
-        ),
-        zoom: 13.5,
-      )));
-      setState(() {});
-      print(currentLocation);
-     });
-  }
+      setState(() { });
+    });
 
-  void getPolyPoints() async {
-    PolylinePoints polylinePoints = PolylinePoints();
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(googleAPIKey, PointLatLng(_origin_latitude!, _origin_longtitude!), PointLatLng(_destination_latitude!, _destination_longtitude!),);
-
-    if(result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) => polylineCoordinates.add(LatLng(point.latitude, point.longitude)));
-      setState(() {});
-    }
+    setState(() { });
+    print('Current Location: ${currentLocation}');
   }
 
   @override
@@ -116,8 +119,8 @@ class _MapState extends State<Map> {
         myLocationButtonEnabled: false,
         initialCameraPosition: CameraPosition(
           target: LatLng(
-            _origin_latitude!,
-            _origin_longtitude!
+            currentLocation!.latitude!, 
+            currentLocation!.longitude!,
           ),
           zoom: 13.5,
         ),

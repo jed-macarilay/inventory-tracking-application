@@ -23,6 +23,7 @@ class _DashboardState extends State<Dashboard> {
   
   List<dynamic> _deliveries = [];
   User? user;
+  String userName = 'user.name';
 
 
   Future<void> retriveDeliveries() async {
@@ -50,6 +51,7 @@ class _DashboardState extends State<Dashboard> {
     if(response.error == null) {
       setState(() {
         user = response.data as User;
+        userName = user!.name!;
       });
     }
     else if(response.error == unauthorized){
@@ -100,7 +102,7 @@ class _DashboardState extends State<Dashboard> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.all(18.0),
-              child: Text('Welcome ${user!.name} to Denlee App',
+              child: Text('Welcome ${userName} to Denlee App',
                 style: TextStyle(
                   color: Colors.lightBlue,
                   fontSize: 28.0,
