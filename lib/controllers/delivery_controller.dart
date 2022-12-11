@@ -58,6 +58,46 @@ Future<ApiResponse> getDelivery(deliveryId) async {
   return apiResponse;
 }
 
+Future<ApiResponse> updateCurrentMap(
+  int deliveryId,
+  latitude,
+  longtitude,
+) async {
+  ApiResponse apiResponse = ApiResponse();
+
+  try {
+    String token = await getToken();
+     final response = await http.put(Uri.parse('$getDeliveryURL/$deliveryId/updateCurrentMap'),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      }, body: {
+        'current_location_latitude': latitude,
+        'current_location_longtitude': longtitude,
+      });
+
+    switch(response.statusCode){
+      case 200:
+        apiResponse.data = jsonDecode(response.body)['message'];
+        break;
+      case 403:
+        apiResponse.error = jsonDecode(response.body)['message'];
+        break;
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingwentwrong;
+        break;
+    }
+  } catch (e) {
+    print('Error: ${e}');
+    apiResponse.error = serverError;
+  }
+
+  return apiResponse;
+}
+
 Future<ApiResponse> setStatus(int deliveryId, String status) async {
   ApiResponse apiResponse = ApiResponse();
 

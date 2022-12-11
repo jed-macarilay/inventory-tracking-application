@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:async';
+import 'package:denlee_app/const.dart';
 import 'package:denlee_app/controllers/delivery_controller.dart';
 import 'package:denlee_app/models/delivery.dart';
 import 'package:denlee_app/screens/dashboard.dart';
@@ -9,9 +10,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../controllers/user_controller.dart';
 import '../models/api_response.dart';
 import 'dashboard.dart';
 import 'package:denlee_app/.env.dart';
+
+import 'login.dart';
 
 class Map extends StatefulWidget {
   final int? deliveryId;
@@ -35,6 +39,7 @@ class _MapState extends State<Map> {
 
   List<LatLng> polylineCoordinates = [];
   LocationData? currentLocation;
+  String location = "";
 
   Future<void> _fetchDelivery() async {
     int id = await getDeliveryId();
@@ -83,22 +88,81 @@ class _MapState extends State<Map> {
       .then((location) => {
         currentLocation = location
       });
-
+    
     location.onLocationChanged.listen((newLocation) {
       currentLocation = newLocation;
-
-      setState(() { });
+      _updateCurrentMap(currentLocation!.latitude!.toString(), currentLocation!.longitude!.toString());
+      setState(() {});
     });
 
-    setState(() { });
+    setState(() {
+      _updateCurrentMap(currentLocation!.latitude!.toString(), currentLocation!.longitude!.toString());
+    });
+    
     print('Current Location: ${currentLocation}');
+  }
+
+  void recenter() async {
+    GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(
+        target: LatLng(
+          currentLocation!.latitude!, 
+          currentLocation!.longitude!,
+        ),
+        zoom: 13.5,
+      )
+    ));
+  }
+
+  void _updateCurrentMap(latitude, longtitude) async {
+    int id = await getDeliveryId();
+    ApiResponse response = await updateCurrentMap(
+      id,
+      latitude,
+      longtitude,
+    );
+    
+    if(response.error == null) {
+      //  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false);
+    }
+    else if(response.error == unauthorized){
+      logout().then((value) => {
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Login()), (route) => false)
+      });
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${response.error}')
+      ));
+    }
+  }
+
+  void setDelivered() async {
+    int id = await getDeliveryId();
+    String status = 'Delivered';
+    ApiResponse response = await setStatus(id, status);
+    
+    if(response.error == null) {
+      //  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false);
+    }
+    else if(response.error == unauthorized){
+      logout().then((value) => {
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Login()), (route) => false)
+      });
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${response.error}')
+      ));
+    }
   }
 
   @override
   void initState() {
+    super.initState();
     _fetchDelivery();
     getCurrentLocation();
-    super.initState();
   }
 
   @override
@@ -112,6 +176,7 @@ class _MapState extends State<Map> {
             Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false)
           },
         ),
+      backgroundColor: Color(0xFF218c74),
       ),
       body: 
         currentLocation == null ? const Center(child: Text('Loading'),) : 
@@ -132,6 +197,7 @@ class _MapState extends State<Map> {
               currentLocation!.longitude!,
             ),
             icon: BitmapDescriptor.defaultMarkerWithHue(150),
+            zIndex: 5,
           ),
           Marker(
             markerId: MarkerId('origin'),
@@ -140,6 +206,7 @@ class _MapState extends State<Map> {
               _origin_longtitude!
             ),
             icon: BitmapDescriptor.defaultMarkerWithHue(90),
+            zIndex: 1,
           ),
           Marker(
             markerId: MarkerId('destination'),
@@ -148,6 +215,7 @@ class _MapState extends State<Map> {
               _destination_longtitude!,
             ),
             icon: BitmapDescriptor.defaultMarkerWithHue(90),
+            zIndex: 1,
           ),
         },
         polylines: {
@@ -176,12 +244,12 @@ class _MapState extends State<Map> {
         child: BottomNavigationBar(
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Icons.center_focus_strong),
               label: 'Re-center',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.api),
+              label: 'Update Location',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.airport_shuttle),
@@ -189,13 +257,24 @@ class _MapState extends State<Map> {
             ),
           ],
           onTap: (v) {
-            if (v == 1) {
-              // _controller.animateCamera(CameraUpdate.newCameraPosition(_initialCameraPosition));
-            } else if (v == 2) {
-              
-            } else {
-              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>Dashboard()), (route) => false);
-            }
+            print(v);
+            if (v == 2){
+              setDelivered();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Order has been Delivered.'),
+              ));
+              print('set deliver');
+            } else if (v == 1) {
+              print('Update Location');
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Update Location is Done.'),
+              ));
+              setState(() {
+                _updateCurrentMap(currentLocation!.latitude!.toString(), currentLocation!.longitude!.toString());
+              });
+            } else if (v == 0) {
+              recenter();
+            } else {}
           },
         ),
       ),

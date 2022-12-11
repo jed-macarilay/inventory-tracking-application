@@ -50,7 +50,7 @@ class _LoginState extends State<Login> {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        backgroundColor: Color(0xFFffffff),
+        backgroundColor: Color(0xFF10ac84),
         body: Container(
           padding: const EdgeInsets.only(left: 40, right: 40),
           child: Form(
@@ -59,8 +59,8 @@ class _LoginState extends State<Login> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height:height*0.04),
-                Text("Hello to Denlee App", style: TextStyle(fontSize: 30, color:Color(0xFF363f93)),),
-                Text("Please Login !", style: TextStyle(fontSize: 30, color:Color(0xFF363f93)),),
+                Text("Welcome to Denlee App", style: TextStyle(fontSize: 30, color:Colors.white),),
+                Text("Please Login !", style: TextStyle(fontSize: 30, color:Colors.white),),
                 SizedBox(height: height*0.05,),
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
@@ -74,8 +74,11 @@ class _LoginState extends State<Login> {
                     enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none),
-                    fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                    fillColor: Color(0xFF218c74),
                     filled: true,
+                  ),
+                  style: TextStyle(
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: height*.05,),
@@ -86,13 +89,16 @@ class _LoginState extends State<Login> {
                   decoration: InputDecoration(
                     labelText: "Password",
                     contentPadding: EdgeInsets.all(25),
-                    border: OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black)),
+                    border: OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.white)),
                     prefixIcon: Icon(Icons.lock),
                     enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none),
-                    fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                    fillColor: Color(0xFF218c74),
                     filled: true,
+                  ),
+                  style: TextStyle(
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: height*.05,),
@@ -114,6 +120,7 @@ class _LoginState extends State<Login> {
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                       shape: StadiumBorder(),
+                      backgroundColor: Color(0xFF218c74),
                     ),
                 )
               ],

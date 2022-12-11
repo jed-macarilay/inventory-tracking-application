@@ -73,9 +73,9 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void initState() {
+    super.initState();
     getUser();
     retriveDeliveries();
-    super.initState();
   }
 
   @override
@@ -95,6 +95,7 @@ class _DashboardState extends State<Dashboard> {
             icon: Icon(Icons.exit_to_app),
           ),
         ],
+        backgroundColor: Color(0xFF218c74),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -104,7 +105,7 @@ class _DashboardState extends State<Dashboard> {
               padding: EdgeInsets.all(18.0),
               child: Text('Welcome ${userName} to Denlee App',
                 style: TextStyle(
-                  color: Colors.lightBlue,
+                  color: Color(0xFF218c74),
                   fontSize: 28.0,
                   fontWeight: FontWeight.bold,
                 ),
@@ -114,12 +115,13 @@ class _DashboardState extends State<Dashboard> {
               padding: EdgeInsets.all(18.0),
               child: Text('Delivery List Today:',
                 style: TextStyle(
-                  color: Colors.lightBlue,
+                  color: Color(0xFF218c74),
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+            user == null ? const Center(child: Text('Loading'),) : 
             ListView.builder(
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
@@ -130,7 +132,7 @@ class _DashboardState extends State<Dashboard> {
                   elevation: 8.0,
                   margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                   child: Container(
-                    decoration: BoxDecoration(color: Colors.lightBlue),
+                    decoration: BoxDecoration(color: Color(0xFF218c74)),
                     child: ListTile(
                       contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                       leading: Container(
